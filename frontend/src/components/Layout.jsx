@@ -26,10 +26,11 @@ const Layout = () => {
       icon: <FaInfoCircle className="inline mr-1" />,
     },
     { to: "/adopt", label: "Adopt", icon: <FaDog className="inline mr-1" /> },
+
     {
-      to: "/contact",
-      label: "Contact",
-      icon: <FaEnvelope className="inline mr-1" />,
+      to: "/our-work",
+      label: "Our Work",
+      icon: <FaHandHoldingHeart className="inline mr-1" />,
     },
     {
       to: "/donate",
@@ -37,14 +38,20 @@ const Layout = () => {
       icon: <FaHandHoldingHeart className="inline mr-1" />,
     },
     {
+      to: "/compliance",
+      label: "Compliance",
+      icon: <FaInfoCircle className="inline mr-1" />,
+    },
+
+    {
       to: "/gallery",
       label: "Gallery",
       icon: <FaImages className="inline mr-1" />,
     },
     {
-      to: "/our-work",
-      label: "Our Work",
-      icon: <FaHandHoldingHeart className="inline mr-1" />,
+      to: "/contact",
+      label: "Contact",
+      icon: <FaEnvelope className="inline mr-1" />,
     },
   ];
 

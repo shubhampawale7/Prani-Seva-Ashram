@@ -38,6 +38,7 @@ import FloatingButton from "./components/FloatingButton";
 import AdminAddDog from "./pages/Admin/AdminAddDog";
 import AdoptionEnquiry from "./pages/AdoptionEnquiry";
 import AdminAdoptionInquiries from "./pages/Admin/AdminAdoptionEnquiries";
+import Compliance from "./pages/Compliance";
 import OurWorkPage from "./pages/OurWorkPage";
 
 function App() {
@@ -57,6 +58,7 @@ function App() {
           <Route path="/adopt" element={<Rescue />} />
           <Route path="/gallery" element={<GalleryPage />} />
           <Route path="/our-work" element={<OurWorkPage />} />
+          <Route path="/compliance" element={<Compliance />} />
 
           <Route path="/adoption-enquiry" element={<AdoptionEnquiry />} />
         </Route>
