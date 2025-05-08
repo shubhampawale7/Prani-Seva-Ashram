@@ -41,6 +41,11 @@ const Layout = () => {
       label: "Gallery",
       icon: <FaImages className="inline mr-1" />,
     },
+    {
+      to: "/our-work",
+      label: "Our Work",
+      icon: <FaHandHoldingHeart className="inline mr-1" />,
+    },
   ];
 
   return (

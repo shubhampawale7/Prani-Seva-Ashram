@@ -38,6 +38,7 @@ import FloatingButton from "./components/FloatingButton";
 import AdminAddDog from "./pages/Admin/AdminAddDog";
 import AdoptionEnquiry from "./pages/AdoptionEnquiry";
 import AdminAdoptionInquiries from "./pages/Admin/AdminAdoptionEnquiries";
+import OurWorkPage from "./pages/OurWorkPage";
 
 function App() {
   return (
@@ -55,6 +56,8 @@ function App() {
           <Route path="/donate" element={<Donate />} />
           <Route path="/adopt" element={<Rescue />} />
           <Route path="/gallery" element={<GalleryPage />} />
+          <Route path="/our-work" element={<OurWorkPage />} />
+
           <Route path="/adoption-enquiry" element={<AdoptionEnquiry />} />
         </Route>
         {/* Admin auth routes */}

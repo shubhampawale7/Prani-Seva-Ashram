@@ -1,33 +1,32 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Lottie from "lottie-react";
 import dogAnimation from "../../assets/lotties/dog-hello.json";
 import axios from "axios";
 import AdminGalleryUpload from "./AdminGalleryUpload";
-import { Link } from "react-router-dom";
 import { Dialog } from "@headlessui/react";
 import { BeatLoader } from "react-spinners";
 import { toast } from "sonner";
+import {
+  FaDonate,
+  FaRupeeSign,
+  FaDog,
+  FaUpload,
+  FaImages,
+} from "react-icons/fa";
 
 const AdminHome = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [totalDonations, setTotalDonations] = useState(0);
   const [rescueCount, setRescueCount] = useState(0);
-
-  const [donationsOpen, setDonationsOpen] = useState(false);
-  const [rescuesOpen, setRescuesOpen] = useState(false);
-
   const [isUploading, setIsUploading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [actionType, setActionType] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedDeleteId, setSelectedDeleteId] = useState(null);
-
-  const [galleryRefreshToggle, setGalleryRefreshToggle] = useState(false); // Used to trigger re-fetch in AdminGalleryUpload
-
-  const toggleDonations = () => setDonationsOpen(!donationsOpen);
-  const toggleRescues = () => setRescuesOpen(!rescuesOpen);
+  const [galleryRefreshToggle, setGalleryRefreshToggle] = useState(false);
+  const [showUploadSection, setShowUploadSection] = useState(false);
 
   const fetchTrends = async () => {
     try {
@@ -50,17 +49,6 @@ const AdminHome = () => {
     } catch (err) {
       console.error("Error fetching rescue count:", err);
     }
-  };
-
-  const handleLogout = () => {
-    axios
-      .post("/api/auth/logout", {}, { withCredentials: true })
-      .then(() => {
-        window.location.href = "/";
-      })
-      .catch((err) => {
-        console.error("Error during logout:", err);
-      });
   };
 
   const handleConfirmAction = (type, data) => {
@@ -122,193 +110,106 @@ const AdminHome = () => {
   }, []);
 
   return (
-    <section className="flex max-w-7xl mx-auto px-4 py-10">
-      {/* Sidebar */}
-      {/* <div className="w-1/4 min-h-full bg-gradient-to-r from-amber-500 to-yellow-400 p-6 rounded-lg shadow-xl flex flex-col">
-        <h2 className="text-2xl font-semibold text-white mb-6">Admin Panel</h2>
-        <div className="flex-grow">
-          <ul className="space-y-4">
-            <li>
-              <button
-                onClick={toggleDonations}
-                className="text-lg text-white hover:text-yellow-100 transition w-full text-left"
-              >
-                Donations
-              </button>
-              {donationsOpen && (
-                <ul className="pl-6 space-y-2 mt-2">
-                  <li>
-                    <Link
-                      to="/admin/donations"
-                      className="text-white hover:text-yellow-100 transition"
-                    >
-                      View Donations
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/admin/donation-trends"
-                      className="text-white hover:text-yellow-100 transition"
-                    >
-                      Donation Trends
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/admin/average-donations"
-                      className="text-white hover:text-yellow-100 transition"
-                    >
-                      Average Donations
-                    </Link>
-                  </li>
-                </ul>
-              )}
-            </li>
-
-            <li>
-              <button
-                onClick={toggleRescues}
-                className="text-lg text-white hover:text-yellow-100 transition w-full text-left"
-              >
-                Rescues
-              </button>
-              {rescuesOpen && (
-                <ul className="pl-6 space-y-2 mt-2">
-                  <li>
-                    <Link
-                      to="/admin/rescues"
-                      className="text-white hover:text-yellow-100 transition"
-                    >
-                      View Rescues
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/admin/track-rescues"
-                      className="text-white hover:text-yellow-100 transition"
-                    >
-                      Track Rescues
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/admin/add-edit-rescue"
-                      className="text-white hover:text-yellow-100 transition"
-                    >
-                      Add/Edit Rescues
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/admin/rescue-stats"
-                      className="text-white hover:text-yellow-100 transition"
-                    >
-                      Rescue Stats
-                    </Link>
-                  </li>
-                </ul>
-              )}
-            </li>
-            <li>
-              <Link
-                to="/admin/inquiries"
-                className="text-lg text-white hover:text-yellow-100 transition w-full text-left"
-              >
-                View Inquiries
-              </Link>
-            </li>
-
-            <li>
-              <button
-                onClick={handleLogout}
-                className="text-lg text-red-700 hover:text-red-900"
-              >
-                Logout
-              </button>
-            </li>
-          </ul>
+    <section className="max-w-7xl mx-auto px-4 py-10">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-10">
+        <div className="md:w-1/2 space-y-2">
+          <h1 className="text-4xl font-extrabold text-amber-700">
+            👋 Welcome, Admin!
+          </h1>
+          <p className="text-gray-600 text-lg">
+            Here's an overview of recent stats and gallery management.
+          </p>
         </div>
-        <div className="flex justify-center mt-6">
-          <Lottie animationData={dogAnimation} loop={true} className="w-20" />
-        </div>
-      </div> */}
-
-      {/* Main Content */}
-      <div className="w-full ml-6">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
-          <div className="md:w-1/2 space-y-4">
-            <h1 className="text-3xl font-bold text-amber-700">
-              Welcome, Admin 🐾
-            </h1>
-            <p className="text-gray-700 text-lg">
-              Here’s an overview of Prani Seva Ashram’s recent activities and
-              stats.
-            </p>
-          </div>
-          <div className="md:w-1/6 max-w-sm">
-            <Lottie animationData={dogAnimation} loop={true} />
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <motion.div
-            className="bg-amber-100 p-6 rounded-2xl shadow hover:shadow-lg transition"
-            whileHover={{ scale: 1.03 }}
-          >
-            <h2 className="text-xl font-semibold text-amber-800 mb-2">
-              Total Donations
-            </h2>
-            <p className="text-3xl font-bold text-amber-900">
-              {totalDonations}
-            </p>
-          </motion.div>
-
-          <motion.div
-            className="bg-green-100 p-6 rounded-2xl shadow hover:shadow-lg transition"
-            whileHover={{ scale: 1.03 }}
-          >
-            <h2 className="text-xl font-semibold text-green-800 mb-2">
-              Total Amount
-            </h2>
-            <p className="text-3xl font-bold text-green-900">₹{totalAmount}</p>
-          </motion.div>
-
-          <motion.div
-            className="bg-blue-100 p-6 rounded-2xl shadow hover:shadow-lg transition"
-            whileHover={{ scale: 1.03 }}
-          >
-            <h2 className="text-xl font-semibold text-blue-800 mb-2">
-              Dogs Rescued
-            </h2>
-            <p className="text-3xl font-bold text-blue-900">{rescueCount}</p>
-          </motion.div>
-        </div>
-
-        {/* Gallery Upload */}
-        <div className="mt-12 bg-white p-6 rounded-2xl shadow-md">
-          <h2 className="text-2xl font-bold text-amber-700 mb-4">
-            📸 Rescue Gallery Upload
-          </h2>
-          <AdminGalleryUpload
-            onConfirmUpload={(file) => handleConfirmAction("upload", file)}
-            onConfirmDelete={(id) => handleConfirmAction("delete", id)}
-            refreshToggle={galleryRefreshToggle}
-          />
+        <div className="md:w-1/4">
+          <Lottie animationData={dogAnimation} loop />
         </div>
       </div>
 
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-10">
+        <motion.div
+          className="bg-amber-100 p-6 rounded-2xl shadow-lg flex items-center gap-4"
+          whileHover={{ scale: 1.03 }}
+        >
+          <FaDonate className="text-4xl text-amber-700" />
+          <div>
+            <p className="text-gray-600">Total Donations</p>
+            <h2 className="text-3xl font-bold text-amber-900">
+              {totalDonations}
+            </h2>
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="bg-green-100 p-6 rounded-2xl shadow-lg flex items-center gap-4"
+          whileHover={{ scale: 1.03 }}
+        >
+          <FaRupeeSign className="text-4xl text-green-700" />
+          <div>
+            <p className="text-gray-600">Total Amount</p>
+            <h2 className="text-3xl font-bold text-green-900">
+              ₹{totalAmount}
+            </h2>
+          </div>
+        </motion.div>
+
+        <motion.div
+          className="bg-blue-100 p-6 rounded-2xl shadow-lg flex items-center gap-4"
+          whileHover={{ scale: 1.03 }}
+        >
+          <FaDog className="text-4xl text-blue-700" />
+          <div>
+            <p className="text-gray-600">Dogs Rescued</p>
+            <h2 className="text-3xl font-bold text-blue-900">{rescueCount}</h2>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Toggle Gallery Upload */}
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={() => setShowUploadSection(!showUploadSection)}
+          className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg shadow transition"
+        >
+          <FaImages />
+          {showUploadSection ? "Hide Gallery Upload" : "Open Gallery Upload"}
+        </button>
+      </div>
+
+      <AnimatePresence>
+        {showUploadSection && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="bg-white p-6 rounded-2xl shadow-lg">
+              <h2 className="text-2xl font-bold text-amber-700 mb-4 flex items-center gap-2">
+                <FaUpload /> Rescue Gallery Upload
+              </h2>
+              <AdminGalleryUpload
+                onConfirmUpload={(file) => handleConfirmAction("upload", file)}
+                onConfirmDelete={(id) => handleConfirmAction("delete", id)}
+                refreshToggle={galleryRefreshToggle}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Confirmation Modal */}
       <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <div className="fixed inset-0 flex justify-center items-center bg-gray-800 bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h3 className="text-xl font-semibold mb-4">
+        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 z-50">
+          <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-sm">
+            <h3 className="text-xl font-semibold mb-3">
               {actionType === "upload" ? "Confirm Upload" : "Confirm Deletion"}
             </h3>
-            <p className="mb-4">
+            <p className="text-gray-600 mb-4">
               Are you sure you want to {actionType} this item?
             </p>
-            <div className="flex justify-end gap-4">
+            <div className="flex justify-end gap-3">
               <button
                 onClick={() => setIsModalOpen(false)}
                 className="px-4 py-2 bg-gray-300 rounded-lg"
@@ -317,7 +218,7 @@ const AdminHome = () => {
               </button>
               <button
                 onClick={actionType === "upload" ? handleUpload : handleDelete}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg min-w-[100px] flex justify-center items-center"
+                className="px-4 py-2 bg-red-600 text-white rounded-lg min-w-[100px] flex justify-center items-center"
               >
                 {isUploading ? (
                   <BeatLoader size={8} color="#ffffff" />

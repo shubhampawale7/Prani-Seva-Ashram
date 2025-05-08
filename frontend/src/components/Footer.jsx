@@ -12,8 +12,7 @@ const Footer = () => {
             Prani Seva Ashram 🐾
           </h2>
           <p className="mt-2 text-sm text-amber-100">
-            A home for rescued souls. Join us in spreading love and care to the
-            voiceless.
+            Your CSR: A Legacy of Compassion and Home for the Voiceless.
           </p>
         </div>
 

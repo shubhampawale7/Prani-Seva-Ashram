@@ -33,3 +33,37 @@ button {
 .toggle-checkbox:checked + .toggle-label {
   background-color: #f59e0b; /* amber-500 */
 }
+
+.floating-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  background: transparent;
+  outline: none;
+}
+
+.floating-label {
+  position: absolute;
+  left: 1rem;
+  top: 0.75rem;
+  background: white;
+  padding: 0 0.25rem;
+  font-size: 0.75rem;
+  color: #999;
+  pointer-events: none;
+  transition: 0.2s ease all;
+}
+
+.floating-input:focus + .floating-label,
+.floating-input:not(:placeholder-shown) + .floating-label,
+.floating-input:valid + .floating-label {
+  transform: translateY(-1.5rem);
+  font-size: 0.75rem;
+  color: #f97316;
+}
+
+.text-stroke-black {
+  -webkit-text-stroke: 1px black;
+  color: white;
+}

@@ -1,17 +1,40 @@
 /* eslint-disable no-unused-vars */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { toast } from "sonner"; // or 'react-toastify' if you're using that
+import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { FaPaw } from "react-icons/fa";
-import Lottie from "lottie-react";
-import dogAnimation from "../assets/lotties/dog.json";
-import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
+import {
+  FaPhoneAlt,
+  FaEnvelope,
+  FaMapMarkerAlt,
+  FaFacebookF,
+  FaInstagram,
+  FaTwitter,
+  FaLinkedin,
+  FaPaw,
+} from "react-icons/fa";
 
 const Contact = () => {
-  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    category: "General Inquiry",
+    message: "",
+  });
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    const savedDraft = localStorage.getItem("contactDraft");
+    if (savedDraft) {
+      setForm(JSON.parse(savedDraft));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("contactDraft", JSON.stringify(form));
+  }, [form]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -19,137 +42,132 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsModalOpen(true); // Open confirmation modal
+    setIsModalOpen(true);
   };
 
   const confirmSendMessage = async () => {
-    setLoading(true); // Set loading to true when form submission starts
+    setLoading(true);
     try {
       await axios.post("/api/contact", form);
       toast.success("Message sent successfully!");
-      setForm({ name: "", email: "", message: "" });
+      setForm({
+        name: "",
+        email: "",
+        category: "General Inquiry",
+        message: "",
+      });
+      localStorage.removeItem("contactDraft");
+      setSubmitted(true);
     } catch (err) {
       toast.error(err.response?.data?.error || "Something went wrong");
     } finally {
       setLoading(false);
-      setIsModalOpen(false); // Close confirmation modal
+      setIsModalOpen(false);
     }
   };
 
   const cancelSendMessage = () => {
-    setIsModalOpen(false); // Close confirmation modal without sending
+    setIsModalOpen(false);
   };
 
   return (
-    <div className="min-h-screen bg-white px-4 py-16 relative overflow-hidden">
-      {/* Decorative background blur circles */}
-      <div className="absolute top-0 left-0 w-72 h-72 bg-amber-100 rounded-full blur-3xl opacity-50 -z-10"></div>
-      <div className="absolute bottom-0 right-0 w-80 h-80 bg-rose-100 rounded-full blur-3xl opacity-50 -z-10"></div>
-
-      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center z-10 relative">
-        {/* Left Side - Illustration */}
-        <motion.div
-          initial={{ opacity: 0, x: -40 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-          className="text-center md:text-left"
-        >
-          <Lottie
-            animationData={dogAnimation}
-            loop={true}
-            className="w-full max-w-sm mx-auto md:mx-0"
-          />
-          <h2 className="text-3xl font-bold text-amber-600 mt-6">
-            We'd love to hear from you!
-          </h2>
-          <p className="text-gray-600 mt-2">
-            Whether you have a question, want to volunteer, or just want to say
-            hello — drop us a message below.
-          </p>
-        </motion.div>
-
-        {/* Right Side - Contact Form */}
-        <motion.form
-          onSubmit={handleSubmit}
-          className="bg-white border border-gray-200 shadow-lg rounded-2xl p-8 space-y-6"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-        >
-          <h3 className="text-2xl font-semibold text-rose-600 flex items-center gap-2">
-            <FaPaw /> Contact Us
-          </h3>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Name
-            </label>
-            <input
-              name="name"
-              type="text"
-              placeholder="Your Name"
-              value={form.name}
-              onChange={handleChange}
-              required
-              className="mt-1 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              name="email"
-              type="email"
-              placeholder="Your Email"
-              value={form.email}
-              onChange={handleChange}
-              required
-              className="mt-1 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Message
-            </label>
-            <textarea
-              name="message"
-              rows="4"
-              placeholder="Your Message"
-              value={form.message}
-              onChange={handleChange}
-              required
-              className="mt-1 w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
-            ></textarea>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 rounded-lg transition"
-            disabled={loading} // Disable button while loading
+    <div className="relative min-h-screen px-4 py-20 bg-white overflow-hidden">
+      <div className="max-w-xl mx-auto">
+        {!submitted ? (
+          <motion.form
+            onSubmit={handleSubmit}
+            className="bg-white/60 backdrop-blur-lg border border-gray-200 shadow-xl rounded-2xl p-8 space-y-6"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.6 }}
           >
-            {loading ? "Sending message..." : "Send Message"}{" "}
-            {/* Button text chanrge */}
-          </button>
-        </motion.form>
+            <h3 className="text-2xl font-semibold text-green-700 flex items-center gap-2">
+              <FaPaw /> Contact Us
+            </h3>
+
+            <div className="relative">
+              <input
+                type="text"
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                required
+                className="floating-input peer"
+              />
+              <label className="floating-label">Your Name</label>
+            </div>
+
+            <div className="relative">
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                required
+                pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
+                className="floating-input peer"
+              />
+              <label className="floating-label">Your Email</label>
+            </div>
+
+            <div className="relative">
+              <select
+                name="category"
+                value={form.category}
+                onChange={handleChange}
+                className="floating-input peer bg-transparent"
+              >
+                <option>General Inquiry</option>
+                <option>Volunteering</option>
+                <option>Donations</option>
+                <option>Adoption Help</option>
+              </select>
+              <label className="floating-label">Reason for Contact</label>
+            </div>
+
+            <div className="relative">
+              <textarea
+                name="message"
+                value={form.message}
+                onChange={handleChange}
+                rows="4"
+                required
+                className="floating-input peer resize-none"
+              ></textarea>
+              <label className="floating-label">Your Message</label>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition shadow-md"
+            >
+              {loading ? "Sending..." : "Send Message"}
+            </button>
+          </motion.form>
+        ) : (
+          <div className="text-center p-10 bg-white/80 rounded-2xl shadow-lg">
+            <h3 className="text-2xl font-bold text-green-700">Thank you!</h3>
+            <p className="text-gray-700 mt-2">
+              We’ve received your message and will be in touch soon.
+            </p>
+          </div>
+        )}
       </div>
 
-      {/* Confirmation Modal */}
+      {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-[#ffffff00] bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white rounded-lg p-6 w-96 shadow-lg text-center relative">
-            <div className="absolute top-0 left-0 right-0 p-2 text-amber-600">
-              <FaPaw size={24} className="mx-auto" />
+        <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
+          <div className="bg-white rounded-xl p-6 w-96 shadow-xl text-center relative">
+            <div className="text-green-700 mb-3">
+              <FaPaw size={28} className="mx-auto" />
             </div>
-            <h4 className="text-lg font-bold text-rose-600 mb-4">
-              Are you sure you want to send this message?
+            <h4 className="text-lg font-bold text-green-700 mb-4">
+              Confirm to Send?
             </h4>
             <p className="text-gray-600 mb-6">
-              This action will send your message to us.
+              This will send your message to Prani Seva Ashram.
             </p>
-
             <div className="flex justify-center gap-4">
               <button
                 onClick={cancelSendMessage}
@@ -159,7 +177,7 @@ const Contact = () => {
               </button>
               <button
                 onClick={confirmSendMessage}
-                className="bg-amber-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-amber-700 transition"
+                className="bg-green-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-green-700 transition"
               >
                 Confirm
               </button>
@@ -168,41 +186,124 @@ const Contact = () => {
         </div>
       )}
 
-      {/* Contact Information Section */}
+      {/* Contact Info */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.6 }}
-        className="max-w-3xl mx-auto mt-16 bg-white border border-gray-200 rounded-2xl shadow-lg p-8 space-y-6 text-center"
+        className="max-w-4xl mx-auto mt-20 bg-white/60 backdrop-blur-lg border border-gray-200 rounded-2xl shadow-lg p-8 space-y-6"
       >
-        <h3 className="text-2xl font-semibold text-amber-600">
+        <h3 className="text-2xl font-semibold text-green-700 text-center">
           Contact Information
         </h3>
-        <div className="text-gray-700 space-y-2">
-          <p className="flex items-center justify-center gap-2">
-            <FaPhoneAlt className="text-rose-600" />
-            <span className="font-medium text-gray-800">Phone:</span>
+
+        <div className="text-gray-700 space-y-2 text-center">
+          <p>
+            🌐 <span className="font-medium">Website:</span>{" "}
             <a
-              href="tel:+919876543210"
-              className="text-rose-600 hover:underline"
+              href="https://www.pranisevaashram.com"
+              className="text-green-700 hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
             >
-              +91 98765 43210
+              www.pranisevaashram.com
             </a>
           </p>
 
           <p>
-            📧 <span className="font-medium text-gray-800">Email:</span>{" "}
+            📧 <span className="font-medium">Email:</span>{" "}
+            <span className="text-green-700 space-x-2">
+              <a
+                href="mailto:contact@pranisevaashram.com"
+                className="hover:underline"
+              >
+                contact@pranisevaashram.com
+              </a>{" "}
+              •{" "}
+              <a
+                href="mailto:bharat@pranisevaashram.com"
+                className="hover:underline"
+              >
+                bharat@pranisevaashram.com
+              </a>{" "}
+              •{" "}
+              <a
+                href="mailto:kishore@pranisevaashram.com"
+                className="hover:underline"
+              >
+                kishore@pranisevaashram.com
+              </a>{" "}
+              •{" "}
+              <a
+                href="mailto:sonia@pranisevaashram.com"
+                className="hover:underline"
+              >
+                sonia@pranisevaashram.com
+              </a>{" "}
+              •{" "}
+              <a
+                href="mailto:bina@pranisevaashram.com"
+                className="hover:underline"
+              >
+                bina@pranisevaashram.com
+              </a>{" "}
+              •{" "}
+              <a
+                href="mailto:karuna@pranisevaashram.com"
+                className="hover:underline"
+              >
+                karuna@pranisevaashram.com
+              </a>
+            </span>
+          </p>
+
+          <p>
+            📞 <span className="font-medium">Phone:</span>{" "}
+            <span className="text-green-700 space-x-2">
+              <a href="tel:+919225633029" className="hover:underline">
+                +91 92256 33029
+              </a>{" "}
+              •{" "}
+              <a href="tel:+919011523456" className="hover:underline">
+                +91 90115 23456
+              </a>{" "}
+              •{" "}
+              <a href="tel:+919011623456" className="hover:underline">
+                +91 90116 23456
+              </a>{" "}
+              •{" "}
+              <a href="tel:+919822033670" className="hover:underline">
+                +91 98220 33670
+              </a>
+            </span>
+          </p>
+
+          <p>
+            📍 <span className="font-medium">Address:</span>{" "}
             <a
-              href="mailto:contact@praniseva.org"
-              className="text-rose-600 hover:underline"
+              href="https://www.google.com/maps/place/Prani+Seva+Ashram,+Lane+5,+Wagholi,+Pune+-+412207"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-green-700 hover:underline"
             >
-              contact@praniseva.org
+              Prani Seva Ashram, Lane 5, Wagholi, Pune - 412207
             </a>
           </p>
-          <p>
-            📍 <span className="font-medium text-gray-800">Address:</span> Prani
-            Seva Ashram, Lane 5, Wagholi, Pune - 412207
-          </p>
+        </div>
+
+        <div className="flex justify-center gap-4 mt-4 text-xl text-green-700">
+          <a href="#" className="hover:text-green-800">
+            <FaFacebookF />
+          </a>
+          <a href="#" className="hover:text-green-800">
+            <FaInstagram />
+          </a>
+          <a href="#" className="hover:text-green-800">
+            <FaTwitter />
+          </a>
+          <a href="#" className="hover:text-green-800">
+            <FaLinkedin />
+          </a>
         </div>
       </motion.div>
     </div>

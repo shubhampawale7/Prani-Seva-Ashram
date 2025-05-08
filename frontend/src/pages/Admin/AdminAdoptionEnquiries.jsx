@@ -16,9 +16,6 @@ const AdminAdoptionEnquiries = () => {
           }
         );
 
-        // Check the structure of the response data
-        console.log(response.data);
-
         setInquiries(response.data); // Set the response data (inquiries)
       } catch (error) {
         toast.error("Error fetching adoption inquiries.");
