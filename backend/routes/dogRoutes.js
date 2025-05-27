@@ -29,7 +29,7 @@ router.post("/", upload.single("image"), async (req, res) => {
       breed,
       gender,
       description,
-      image: req.file?.filename || "", // Save image filename
+      image: req.file?.filename || "",
     });
 
     const savedDog = await newDog.save();
@@ -41,8 +41,6 @@ router.post("/", upload.single("image"), async (req, res) => {
 });
 
 // @route GET /api/dogs
-// Assuming you're using Mongoose
-
 router.get("/", async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const dogsPerPage = 6;
@@ -58,6 +56,47 @@ router.get("/", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error");
+  }
+});
+
+// @route PUT /api/dogs/:id
+router.put("/:id", upload.single("image"), async (req, res) => {
+  try {
+    const { name, age, breed, gender, description } = req.body;
+
+    const updatedFields = {
+      name,
+      age,
+      breed,
+      gender,
+      description,
+      adopted: req.body.adopted === "true" || req.body.adopted === true,
+    };
+
+    if (req.file) {
+      updatedFields.image = req.file.filename;
+    }
+
+    const updatedDog = await Dog.findByIdAndUpdate(
+      req.params.id,
+      updatedFields,
+      { new: true }
+    );
+
+    res.json(updatedDog);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Update failed" });
+  }
+});
+
+// @route DELETE /api/dogs/:id
+router.delete("/:id", async (req, res) => {
+  try {
+    await Dog.findByIdAndDelete(req.params.id);
+    res.json({ message: "Dog deleted" });
+  } catch (err) {
+    res.status(500).json({ message: "Delete failed" });
   }
 });
 

@@ -32,6 +32,11 @@ const AdoptionEnquirySchema = new mongoose.Schema(
       enum: ["sent", "failed"],
       default: "sent",
     },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
   },
   { timestamps: true }
 );

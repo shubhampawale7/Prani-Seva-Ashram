@@ -1,51 +1,56 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Lottie from "lottie-react";
-import dogAnimation from "../../assets/lotties/dog-hello.json";
 import axios from "axios";
-import AdminGalleryUpload from "./AdminGalleryUpload";
+import AdminGalleryUpload from "./AdminGalleryUpload"; // Assuming this path is correct
 import { Dialog } from "@headlessui/react";
 import { BeatLoader } from "react-spinners";
 import { toast } from "sonner";
 import {
-  FaDonate,
-  FaRupeeSign,
-  FaDog,
-  FaUpload,
+  FaDollarSign,
+  FaChartBar,
   FaImages,
+  FaUpload,
+  FaTimes,
+  FaPaw,
+  FaHandHoldingHeart,
 } from "react-icons/fa";
 
 const AdminHome = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [totalDonations, setTotalDonations] = useState(0);
-  const [rescueCount, setRescueCount] = useState(0);
+  const [rescueCount, setRescueCount] = useState(0); // Still fetching, just commented out in UI
   const [isUploading, setIsUploading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [actionType, setActionType] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedDeleteId, setSelectedDeleteId] = useState(null);
   const [galleryRefreshToggle, setGalleryRefreshToggle] = useState(false);
-  const [showUploadSection, setShowUploadSection] = useState(false);
+  const [showGallerySection, setShowGallerySection] = useState(false);
+
+  useEffect(() => {
+    document.title = "Dashboard | Prani Seva Ashram Admin";
+  }, []);
 
   const fetchTrends = async () => {
     try {
-      const res = await axios.get("/api/donate/trends", {
+      const { data } = await axios.get("/api/donate/trends", {
         withCredentials: true,
       });
-      setTotalAmount(res.data?.totalAmount || 0);
-      setTotalDonations(res.data?.totalDonations || 0);
+      setTotalAmount(data?.totalAmount || 0);
+      setTotalDonations(data?.totalDonations || 0);
     } catch (err) {
-      console.error("Error fetching donation stats:", err);
+      console.error("Error fetching donation statistics:", err);
+      toast.error("Failed to load donation data.");
     }
   };
 
   const fetchRescueCount = async () => {
     try {
-      const res = await axios.get("/api/rescues/count", {
+      const { data } = await axios.get("/api/rescues/count", {
         withCredentials: true,
       });
-      setRescueCount(res.data?.count || 0);
+      setRescueCount(data?.count || 0);
     } catch (err) {
       console.error("Error fetching rescue count:", err);
     }
@@ -62,7 +67,10 @@ const AdminHome = () => {
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) return toast.error("No image selected.");
+    if (!selectedFile) {
+      toast.error("No image selected for upload.");
+      return;
+    }
     setIsUploading(true);
     const formData = new FormData();
     formData.append("image", selectedFile);
@@ -74,11 +82,12 @@ const AdminHome = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-      toast.success("Image uploaded successfully.");
+      toast.success("Image uploaded successfully!");
       setGalleryRefreshToggle((prev) => !prev);
+      setSelectedFile(null);
     } catch (err) {
       console.error("Upload failed:", err);
-      toast.error("Upload failed.");
+      toast.error(err.response?.data?.error || "Image upload failed.");
     } finally {
       setIsUploading(false);
       setIsModalOpen(false);
@@ -86,18 +95,21 @@ const AdminHome = () => {
   };
 
   const handleDelete = async () => {
-    if (!selectedDeleteId)
-      return toast.error("No image selected for deletion.");
+    if (!selectedDeleteId) {
+      toast.error("No image selected for deletion.");
+      return;
+    }
     setIsUploading(true);
     try {
       await axios.delete(`/api/gallery/${selectedDeleteId}`, {
         withCredentials: true,
       });
-      toast.success("Image deleted successfully.");
+      toast.success("Image deleted successfully!");
       setGalleryRefreshToggle((prev) => !prev);
+      setSelectedDeleteId(null);
     } catch (err) {
       console.error("Delete failed:", err);
-      toast.error("Delete failed.");
+      toast.error(err.response?.data?.error || "Image deletion failed.");
     } finally {
       setIsUploading(false);
       setIsModalOpen(false);
@@ -109,116 +121,219 @@ const AdminHome = () => {
     fetchRescueCount();
   }, []);
 
+  // Framer Motion variants
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" },
+    },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.3 } },
+  };
+
   return (
-    <section className="max-w-7xl mx-auto px-4 py-10">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-10">
-        <div className="md:w-1/2 space-y-2">
-          <h1 className="text-4xl font-extrabold text-amber-700">
-            👋 Welcome, Admin!
+    <div className="bg-gray-100 min-h-full">
+      {" "}
+      {/* Changed to min-h-full and removed outer padding */}
+      <div className="space-y-6 lg:space-y-8 py-4 sm:py-6 lg:py-8">
+        {" "}
+        {/* Adjusted padding and spacing */}
+        {/* Dashboard Header */}
+        <motion.div
+          className="bg-white rounded-lg shadow-md py-6 px-4 sm:px-6 lg:px-8 border-b-4 border-amber-500" // Adjusted padding
+          variants={sectionVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <h1 className="text-3xl font-extrabold text-gray-800 mb-2">
+            Admin Dashboard
           </h1>
-          <p className="text-gray-600 text-lg">
-            Here's an overview of recent stats and gallery management.
+          <p className="text-gray-600">
+            A centralized hub for managing Prani Seva Ashram's operations.
           </p>
-        </div>
-        <div className="md:w-1/4">
-          <Lottie animationData={dogAnimation} loop />
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-10">
-        <motion.div
-          className="bg-amber-100 p-6 rounded-2xl shadow-lg flex items-center gap-4"
-          whileHover={{ scale: 1.03 }}
+        </motion.div>
+        {/* Key Metrics Section */}
+        <motion.section
+          className="bg-white rounded-lg shadow-md py-6 px-4 sm:px-6 lg:px-8" // Adjusted padding
+          variants={sectionVariants}
+          initial="hidden"
+          animate="visible"
+          transition={{ delay: 0.1 }}
         >
-          <FaDonate className="text-4xl text-amber-700" />
-          <div>
-            <p className="text-gray-600">Total Donations</p>
-            <h2 className="text-3xl font-bold text-amber-900">
-              {totalDonations}
+          <h2 className="text-2xl font-bold text-gray-700 mb-6 flex items-center">
+            <FaChartBar className="mr-3 text-amber-500" /> Key Performance
+            Indicators
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Total Donations Card */}
+            <motion.div
+              className="bg-amber-50 rounded-lg p-5 flex items-center justify-between border border-amber-100 shadow-sm"
+              variants={cardVariants}
+              whileHover={{
+                translateY: -5,
+                boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
+              }}
+            >
+              <div>
+                <p className="text-gray-600 text-sm font-medium uppercase">
+                  Total Donations
+                </p>
+                <h3 className="text-3xl font-extrabold text-amber-800 mt-1">
+                  {totalDonations}
+                </h3>
+              </div>
+              <div className="bg-amber-200 p-3 rounded-full">
+                <FaHandHoldingHeart className="text-2xl text-amber-700" />
+              </div>
+            </motion.div>
+
+            {/* Total Amount Card */}
+            <motion.div
+              className="bg-green-50 rounded-lg p-5 flex items-center justify-between border border-green-100 shadow-sm"
+              variants={cardVariants}
+              whileHover={{
+                translateY: -5,
+                boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
+              }}
+            >
+              <div>
+                <p className="text-gray-600 text-sm font-medium uppercase">
+                  Total Funds Raised
+                </p>
+                <h3 className="text-3xl font-extrabold text-green-800 mt-1">
+                  ₹{totalAmount.toLocaleString("en-IN")}
+                </h3>
+              </div>
+              <div className="bg-green-200 p-3 rounded-full">
+                <FaDollarSign className="text-2xl text-green-700" />
+              </div>
+            </motion.div>
+
+            {/* Animals Rescued Card (Re-enabled with new styling) */}
+            <motion.div
+              className="bg-blue-50 rounded-lg p-5 flex items-center justify-between border border-blue-100 shadow-sm"
+              variants={cardVariants}
+              whileHover={{
+                translateY: -5,
+                boxShadow: "0 8px 16px rgba(0,0,0,0.1)",
+              }}
+            >
+              <div>
+                <p className="text-gray-600 text-sm font-medium uppercase">
+                  Animals Rescued
+                </p>
+                <h3 className="text-3xl font-extrabold text-blue-800 mt-1">
+                  {rescueCount}
+                </h3>
+              </div>
+              <div className="bg-blue-200 p-3 rounded-full">
+                <FaPaw className="text-2xl text-blue-700" />
+              </div>
+            </motion.div>
+          </div>
+        </motion.section>
+        {/* Gallery Management Section */}
+        <motion.section
+          className="bg-white rounded-lg shadow-md py-6 px-4 sm:px-6 lg:px-8" // Adjusted padding
+          variants={sectionVariants}
+          initial="hidden"
+          animate="visible"
+          transition={{ delay: 0.2 }}
+        >
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-700 flex items-center">
+              <FaImages className="mr-3 text-amber-500" /> Gallery Content
             </h2>
+            <button
+              onClick={() => setShowGallerySection(!showGallerySection)}
+              className="flex items-center gap-2 px-5 py-2 bg-amber-600 text-white font-semibold rounded-md shadow hover:bg-amber-700 transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+            >
+              {showGallerySection ? (
+                <>
+                  <FaTimes /> Hide Controls
+                </>
+              ) : (
+                <>
+                  <FaUpload /> Manage Images
+                </>
+              )}
+            </button>
           </div>
-        </motion.div>
 
-        <motion.div
-          className="bg-green-100 p-6 rounded-2xl shadow-lg flex items-center gap-4"
-          whileHover={{ scale: 1.03 }}
-        >
-          <FaRupeeSign className="text-4xl text-green-700" />
-          <div>
-            <p className="text-gray-600">Total Amount</p>
-            <h2 className="text-3xl font-bold text-green-900">
-              ₹{totalAmount}
-            </h2>
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="bg-blue-100 p-6 rounded-2xl shadow-lg flex items-center gap-4"
-          whileHover={{ scale: 1.03 }}
-        >
-          <FaDog className="text-4xl text-blue-700" />
-          <div>
-            <p className="text-gray-600">Dogs Rescued</p>
-            <h2 className="text-3xl font-bold text-blue-900">{rescueCount}</h2>
-          </div>
-        </motion.div>
+          <AnimatePresence>
+            {showGallerySection && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.4, ease: "easeInOut" }}
+                className="overflow-hidden border-t pt-6 mt-6 border-gray-200"
+              >
+                <AdminGalleryUpload
+                  onConfirmUpload={(file) =>
+                    handleConfirmAction("upload", file)
+                  }
+                  onConfirmDelete={(id) => handleConfirmAction("delete", id)}
+                  refreshToggle={galleryRefreshToggle}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.section>
       </div>
-
-      {/* Toggle Gallery Upload */}
-      <div className="flex justify-end mb-4">
-        <button
-          onClick={() => setShowUploadSection(!showUploadSection)}
-          className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg shadow transition"
-        >
-          <FaImages />
-          {showUploadSection ? "Hide Gallery Upload" : "Open Gallery Upload"}
-        </button>
-      </div>
-
-      <AnimatePresence>
-        {showUploadSection && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden"
-          >
-            <div className="bg-white p-6 rounded-2xl shadow-lg">
-              <h2 className="text-2xl font-bold text-amber-700 mb-4 flex items-center gap-2">
-                <FaUpload /> Rescue Gallery Upload
-              </h2>
-              <AdminGalleryUpload
-                onConfirmUpload={(file) => handleConfirmAction("upload", file)}
-                onConfirmDelete={(id) => handleConfirmAction("delete", id)}
-                refreshToggle={galleryRefreshToggle}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Confirmation Modal */}
-      <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)}>
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-40 z-50">
-          <div className="bg-white p-6 rounded-xl shadow-xl w-full max-w-sm">
-            <h3 className="text-xl font-semibold mb-3">
-              {actionType === "upload" ? "Confirm Upload" : "Confirm Deletion"}
-            </h3>
-            <p className="text-gray-600 mb-4">
-              Are you sure you want to {actionType} this item?
-            </p>
+      <Dialog
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        className="relative z-50"
+      >
+        <motion.div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <Dialog.Panel
+            as={motion.div}
+            className="bg-white rounded-lg p-6 sm:p-8 shadow-2xl w-full max-w-sm"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Dialog.Title className="text-xl font-bold text-gray-800 mb-4">
+              {actionType === "upload"
+                ? "Confirm Image Upload"
+                : "Confirm Image Deletion"}
+            </Dialog.Title>
+            <Dialog.Description className="text-gray-600 mb-6">
+              Are you sure you want to proceed with{" "}
+              {actionType === "upload"
+                ? "uploading this image"
+                : "deleting this image"}
+              ? This action cannot be undone.
+            </Dialog.Description>
+
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 bg-gray-300 rounded-lg"
+                className="px-5 py-2 bg-gray-200 text-gray-800 rounded-md font-medium hover:bg-gray-300 transition duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400"
               >
                 Cancel
               </button>
               <button
                 onClick={actionType === "upload" ? handleUpload : handleDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg min-w-[100px] flex justify-center items-center"
+                className={`px-5 py-2 rounded-md font-semibold min-w-[100px] flex justify-center items-center transition duration-200 ${
+                  actionType === "upload"
+                    ? "bg-amber-600 text-white hover:bg-amber-700 focus:ring-amber-500"
+                    : "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500"
+                } focus:outline-none focus:ring-2 focus:ring-offset-2`}
+                disabled={isUploading}
               >
                 {isUploading ? (
                   <BeatLoader size={8} color="#ffffff" />
@@ -229,10 +344,10 @@ const AdminHome = () => {
                 )}
               </button>
             </div>
-          </div>
-        </div>
+          </Dialog.Panel>
+        </motion.div>
       </Dialog>
-    </section>
+    </div>
   );
 };
 

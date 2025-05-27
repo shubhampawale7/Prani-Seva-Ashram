@@ -67,3 +67,166 @@ button {
   -webkit-text-stroke: 1px black;
   color: white;
 }
+.input-field {
+  @apply w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-500;
+}
+
+@keyframes gradient-x {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animated-gradient {
+  background-size: 200% 200%;
+  animation: gradient-x 6s ease infinite;
+}
+
+.custom-swiper .swiper-pagination-bullets {
+  bottom: -1px !important; /* move dots downward */
+}
+
+.custom-swiper .swiper-pagination-bullet {
+  background-color: #a3a3a3; /* Tailwind's neutral-400 */
+  opacity: 1;
+}
+
+.custom-swiper .swiper-pagination-bullet-active {
+  background-color: #525252; /* Tailwind's neutral-700 */
+}
+
+
+
+@keyframes blobOne {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-10px, 15px); }
+}
+@keyframes blobTwo {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(15px, -10px); }
+}
+@keyframes blobThree {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-5px, 10px); }
+}
+.animate-blob-one { animation: blobOne 15s ease-in-out infinite alternate; }
+.animate-blob-two { animation: blobTwo 18s ease-in-out infinite alternate; }
+.animate-blob-three { animation: blobThree 12s ease-in-out infinite alternate; }
+
+/* In your global CSS file (e.g., index.css) */
+.custom-scrollbar-amber::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar-amber::-webkit-scrollbar-track {
+  background: #fdf2e8; /* Very light amber */
+  border-radius: 10px;
+}
+
+.custom-scrollbar-amber::-webkit-scrollbar-thumb {
+  background: #fcd34d; /* Amber-300 */
+  border-radius: 10px;
+}
+
+.custom-scrollbar-amber::-webkit-scrollbar-thumb:hover {
+  background: #f59e0b; /* Amber-500 on hover */
+}
+
+/* Custom subtle bounce animation */
+@keyframes bounce-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 2s infinite ease-in-out;
+}
+
+/* In your custom.css or wherever your Tailwind CSS is configured */
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.02);
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 4s infinite ease-in-out;
+}
+
+.font-raleway {
+  font-family: 'Raleway', sans-serif;
+}
+
+/* Add this to your global CSS file (e.g., index.css or globals.css) */
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scale-in {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes bounce-once {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  20% {
+    transform: translateY(-10px);
+  }
+  40% {
+    transform: translateY(0);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+.animate-fade-in { animation: fade-in 0.8s ease-out forwards; }
+.animate-slide-up { animation: slide-up 0.7s ease-out forwards; }
+.animate-fade-in-up { animation: fade-in-up 0.8s ease-out forwards; }
+.animate-scale-in { animation: scale-in 0.3s ease-out forwards; }
+.animate-bounce-once { animation: bounce-once 0.6s ease-in-out; }
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }

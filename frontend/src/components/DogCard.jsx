@@ -1,26 +1,44 @@
-// components/DogCard.jsx
 import { motion } from "framer-motion";
 
 const DogCard = ({ dog, onClick }) => {
+  const isAdopted = dog.adopted;
+
   return (
-    <motion.div
-      onClick={onClick}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.98 }}
+    <motion.article
+      onClick={!isAdopted ? onClick : undefined}
+      whileHover={!isAdopted ? { scale: 1.05 } : {}}
+      whileTap={!isAdopted ? { scale: 0.98 } : {}}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="cursor-pointer bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300"
+      className={`cursor-pointer bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-300 relative 
+        ${
+          isAdopted
+            ? "opacity-70 grayscale cursor-not-allowed"
+            : "hover:shadow-2xl"
+        }`}
+      role="button"
+      aria-disabled={isAdopted}
+      aria-label={`Dog card for ${dog.name}`}
     >
       <div className="relative h-56 overflow-hidden">
         <img
           src={`http://localhost:5000/uploads/${dog.image}`}
-          alt={dog.name}
+          alt={`${dog.name}, a ${dog.age} year old ${dog.breed}`}
           className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-500"
         />
-        <div className="absolute top-2 right-2 bg-amber-600 text-white text-xs px-2 py-1 rounded shadow">
+
+        {/* Gender Badge */}
+        <span className="absolute top-2 right-2 bg-amber-600 text-white text-xs px-2 py-1 rounded shadow">
           {dog.gender}
-        </div>
+        </span>
+
+        {/* Adopted Badge */}
+        {isAdopted && (
+          <span className="absolute top-2 left-2 bg-red-600 text-white text-xs px-3 py-1 rounded-full shadow-md">
+            Adopted
+          </span>
+        )}
       </div>
 
       <div className="p-4">
@@ -43,7 +61,7 @@ const DogCard = ({ dog, onClick }) => {
           </p>
         )}
       </div>
-    </motion.div>
+    </motion.article>
   );
 };
 

@@ -7,8 +7,12 @@ const dogSchema = new mongoose.Schema({
   gender: String,
   mood: String,
   description: String,
-  image: String, // image URL
+  image: String,
   vaccinated: Boolean,
+  adopted: {
+    type: Boolean,
+    default: false,
+  },
   addedAt: {
     type: Date,
     default: Date.now,

@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import connectDB from "./config/db.js";
 import donationRoutes from "./routes/donationRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import volunteerRoutes from "./routes/volunteerRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 import rescueRoutes from "./routes/rescueRoutes.js"; // ✅ Imported rescue routes
 import galleryRoutes from "./routes/galleryRoutes.js";
@@ -38,11 +39,12 @@ app.use("/api/donate", donationRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/rescues", rescueRoutes);
+app.use("/api/volunteers", volunteerRoutes);
 app.use("/api/gallery", galleryRoutes); // ✅ Mounted rescue route
 app.use("/api/inquiries", inquiryRoutes);
 app.use("/api/reply", replyRoutes);
 app.use("/api/dogs", dogRoutes);
-app.use("/api/enquiries", enquiryRoutes);
+app.use("/api/admin-inquiries", enquiryRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

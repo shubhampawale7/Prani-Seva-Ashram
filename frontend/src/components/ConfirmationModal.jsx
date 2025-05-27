@@ -26,12 +26,24 @@ const ConfirmationModal = ({
   const { title, message, confirmText } = config[type] || config["delete"];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      aria-describedby="modal-description"
+    >
       <div className="bg-white dark:bg-gray-900 rounded-lg p-6 w-full max-w-md shadow-lg transition-all">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+        <h2
+          id="modal-title"
+          className="text-lg font-semibold text-gray-800 dark:text-gray-100"
+        >
           {title}
         </h2>
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+        <p
+          id="modal-description"
+          className="mt-2 text-sm text-gray-600 dark:text-gray-300"
+        >
           {message}
         </p>
         <div className="mt-6 flex justify-end gap-3">

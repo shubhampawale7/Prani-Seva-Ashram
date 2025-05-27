@@ -99,5 +99,40 @@ router.get("/adoption-inquiries", async (req, res) => {
     res.status(500).json({ message: "Error fetching adoption inquiries." });
   }
 });
+// Update inquiry status
+router.put("/adoption-inquiries/:id", async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  if (!["pending", "approved", "rejected"].includes(status)) {
+    return res.status(400).json({ message: "Invalid status value." });
+  }
+
+  try {
+    const inquiry = await AdoptionEnquiry.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+
+    if (!inquiry) {
+      return res.status(404).json({ message: "Inquiry not found." });
+    }
+
+    res.status(200).json({ message: "Status updated.", inquiry });
+  } catch (err) {
+    console.error("Error updating inquiry status:", err);
+    res.status(500).json({ message: "Server error." });
+  }
+});
+router.delete("/adoption-inquiries/:id", async (req, res) => {
+  try {
+    await AdoptionEnquiry.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Inquiry deleted successfully." });
+  } catch (err) {
+    console.error("Delete error:", err);
+    res.status(500).json({ error: "Failed to delete inquiry." });
+  }
+});
 
 export default router;
