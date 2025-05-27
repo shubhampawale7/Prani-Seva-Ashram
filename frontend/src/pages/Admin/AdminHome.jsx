@@ -14,16 +14,18 @@ import {
   FaTimes,
   FaPaw,
   FaHandHoldingHeart,
+  FaCloudUploadAlt,
+  FaEyeSlash,
 } from "react-icons/fa";
 
 const AdminHome = () => {
   const [totalAmount, setTotalAmount] = useState(0);
   const [totalDonations, setTotalDonations] = useState(0);
-  const [rescueCount, setRescueCount] = useState(0); // Still fetching, just commented out in UI
-  const [isUploading, setIsUploading] = useState(false);
+  const [rescueCount, setRescueCount] = useState(0);
+  const [isUploading, setIsUploading] = useState(false); // This seems to be for the modal's loading state
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [actionType, setActionType] = useState("");
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [actionType, setActionType] = useState(""); // 'upload' or 'delete'
+  const [selectedFileForUpload, setSelectedFileForUpload] = useState(null); // Renamed for clarity
   const [selectedDeleteId, setSelectedDeleteId] = useState(null);
   const [galleryRefreshToggle, setGalleryRefreshToggle] = useState(false);
   const [showGallerySection, setShowGallerySection] = useState(false);
@@ -56,63 +58,71 @@ const AdminHome = () => {
     }
   };
 
+  // This handler is now the central point for triggering the confirmation modal
   const handleConfirmAction = (type, data) => {
     setActionType(type);
     if (type === "upload") {
-      setSelectedFile(data);
+      setSelectedFileForUpload(data); // `data` here is the file object
+      setSelectedDeleteId(null); // Clear delete ID
     } else if (type === "delete") {
-      setSelectedDeleteId(data);
+      setSelectedDeleteId(data); // `data` here is the image ID
+      setSelectedFileForUpload(null); // Clear selected file
     }
-    setIsModalOpen(true);
+    setIsModalOpen(true); // Open the confirmation modal
   };
 
-  const handleUpload = async () => {
-    if (!selectedFile) {
+  // This function is called when 'Upload' is confirmed in the modal
+  const handleUploadConfirmed = async () => {
+    if (!selectedFileForUpload) {
       toast.error("No image selected for upload.");
       return;
     }
-    setIsUploading(true);
+    setIsUploading(true); // Indicate loading in the modal button
     const formData = new FormData();
-    formData.append("image", selectedFile);
+    formData.append("photo", selectedFileForUpload); // Ensure 'photo' matches your backend's expected field name
 
     try {
-      await axios.post("/api/gallery/upload", formData, {
+      await axios.post("http://localhost:5000/api/gallery/upload", formData, {
         withCredentials: true,
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
       toast.success("Image uploaded successfully!");
-      setGalleryRefreshToggle((prev) => !prev);
-      setSelectedFile(null);
+      setGalleryRefreshToggle((prev) => !prev); // Trigger gallery refresh
+      setSelectedFileForUpload(null); // Clear selected file after successful upload
     } catch (err) {
       console.error("Upload failed:", err);
       toast.error(err.response?.data?.error || "Image upload failed.");
     } finally {
       setIsUploading(false);
-      setIsModalOpen(false);
+      setIsModalOpen(false); // Close modal
     }
   };
 
-  const handleDelete = async () => {
+  // This function is called when 'Delete' is confirmed in the modal
+  const handleDeleteConfirmed = async () => {
     if (!selectedDeleteId) {
       toast.error("No image selected for deletion.");
       return;
     }
-    setIsUploading(true);
+    setIsUploading(true); // Indicate loading in the modal button
     try {
-      await axios.delete(`/api/gallery/${selectedDeleteId}`, {
-        withCredentials: true,
-      });
+      await axios.delete(
+        `http://localhost:5000/api/gallery/${selectedDeleteId}`,
+        {
+          withCredentials: true,
+        }
+      );
       toast.success("Image deleted successfully!");
-      setGalleryRefreshToggle((prev) => !prev);
-      setSelectedDeleteId(null);
+      setGalleryRefreshToggle((prev) => !prev); // Trigger gallery refresh
+      setSelectedDeleteId(null); // Clear selected delete ID
     } catch (err) {
       console.error("Delete failed:", err);
       toast.error(err.response?.data?.error || "Image deletion failed.");
     } finally {
       setIsUploading(false);
-      setIsModalOpen(false);
+      setIsModalOpen(false); // Close modal
     }
   };
 
@@ -138,14 +148,10 @@ const AdminHome = () => {
 
   return (
     <div className="bg-gray-100 min-h-full">
-      {" "}
-      {/* Changed to min-h-full and removed outer padding */}
       <div className="space-y-6 lg:space-y-8 py-4 sm:py-6 lg:py-8">
-        {" "}
-        {/* Adjusted padding and spacing */}
         {/* Dashboard Header */}
         <motion.div
-          className="bg-white rounded-lg shadow-md py-6 px-4 sm:px-6 lg:px-8 border-b-4 border-amber-500" // Adjusted padding
+          className="bg-white rounded-lg shadow-md py-6 px-4 sm:px-6 lg:px-8 border-b-4 border-amber-500"
           variants={sectionVariants}
           initial="hidden"
           animate="visible"
@@ -157,9 +163,10 @@ const AdminHome = () => {
             A centralized hub for managing Prani Seva Ashram's operations.
           </p>
         </motion.div>
+
         {/* Key Metrics Section */}
         <motion.section
-          className="bg-white rounded-lg shadow-md py-6 px-4 sm:px-6 lg:px-8" // Adjusted padding
+          className="bg-white rounded-lg shadow-md py-6 px-4 sm:px-6 lg:px-8"
           variants={sectionVariants}
           initial="hidden"
           animate="visible"
@@ -169,7 +176,7 @@ const AdminHome = () => {
             <FaChartBar className="mr-3 text-amber-500" /> Key Performance
             Indicators
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
             {/* Total Donations Card */}
             <motion.div
               className="bg-amber-50 rounded-lg p-5 flex items-center justify-between border border-amber-100 shadow-sm"
@@ -214,8 +221,9 @@ const AdminHome = () => {
               </div>
             </motion.div>
 
-            {/* Animals Rescued Card (Re-enabled with new styling) */}
-            <motion.div
+            {/* Animals Rescued Card */}
+            {/* Uncomment this if you want to display the rescue count */}
+            {/* <motion.div
               className="bg-blue-50 rounded-lg p-5 flex items-center justify-between border border-blue-100 shadow-sm"
               variants={cardVariants}
               whileHover={{
@@ -234,32 +242,34 @@ const AdminHome = () => {
               <div className="bg-blue-200 p-3 rounded-full">
                 <FaPaw className="text-2xl text-blue-700" />
               </div>
-            </motion.div>
+            </motion.div> */}
           </div>
         </motion.section>
+
         {/* Gallery Management Section */}
         <motion.section
-          className="bg-white rounded-lg shadow-md py-6 px-4 sm:px-6 lg:px-8" // Adjusted padding
+          className="bg-white rounded-xl shadow-lg p-6 md:p-8 lg:p-10"
           variants={sectionVariants}
           initial="hidden"
           animate="visible"
           transition={{ delay: 0.2 }}
         >
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-700 flex items-center">
-              <FaImages className="mr-3 text-amber-500" /> Gallery Content
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b pb-4 border-gray-200">
+            <h2 className="text-3xl font-extrabold text-gray-800 flex items-center mb-4 md:mb-0">
+              <FaImages className="mr-4 text-amber-600 text-3xl" /> Gallery
+              Management
             </h2>
             <button
               onClick={() => setShowGallerySection(!showGallerySection)}
-              className="flex items-center gap-2 px-5 py-2 bg-amber-600 text-white font-semibold rounded-md shadow hover:bg-amber-700 transition duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2"
+              className="flex items-center gap-2 px-6 py-2.5 bg-amber-600 text-white font-semibold rounded-lg shadow-md hover:bg-amber-700 transition duration-300 ease-in-out focus:outline-none focus:ring-3 focus:ring-amber-500 focus:ring-offset-2 transform hover:scale-105"
             >
               {showGallerySection ? (
                 <>
-                  <FaTimes /> Hide Controls
+                  <FaEyeSlash className="text-xl" /> Hide Controls
                 </>
               ) : (
                 <>
-                  <FaUpload /> Manage Images
+                  <FaCloudUploadAlt className="text-xl" /> Manage Images
                 </>
               )}
             </button>
@@ -272,20 +282,26 @@ const AdminHome = () => {
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.4, ease: "easeInOut" }}
-                className="overflow-hidden border-t pt-6 mt-6 border-gray-200"
+                className="overflow-hidden pt-6"
               >
+                <p className="text-gray-600 mb-6 text-lg">
+                  Upload new images or manage existing ones in your gallery.
+                </p>
                 <AdminGalleryUpload
+                  // `onConfirmUpload` and `onConfirmDelete` props now directly trigger
+                  // the `handleConfirmAction` in AdminHome.jsx
                   onConfirmUpload={(file) =>
                     handleConfirmAction("upload", file)
                   }
                   onConfirmDelete={(id) => handleConfirmAction("delete", id)}
-                  refreshToggle={galleryRefreshToggle}
+                  refreshTrigger={galleryRefreshToggle}
                 />
               </motion.div>
             )}
           </AnimatePresence>
         </motion.section>
       </div>
+
       {/* Confirmation Modal */}
       <Dialog
         open={isModalOpen}
@@ -327,7 +343,12 @@ const AdminHome = () => {
                 Cancel
               </button>
               <button
-                onClick={actionType === "upload" ? handleUpload : handleDelete}
+                // Call the specific handler based on actionType
+                onClick={
+                  actionType === "upload"
+                    ? handleUploadConfirmed
+                    : handleDeleteConfirmed
+                }
                 className={`px-5 py-2 rounded-md font-semibold min-w-[100px] flex justify-center items-center transition duration-200 ${
                   actionType === "upload"
                     ? "bg-amber-600 text-white hover:bg-amber-700 focus:ring-amber-500"
