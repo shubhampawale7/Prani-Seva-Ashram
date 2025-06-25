@@ -1,7 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import homehero from "../assets/images/homehero.jpg"; // Ensure this path is correct and the image is high-quality
+import homehero from "../assets/images/bharat-gidwani.jpg"; // Ensure this path is correct and the image is high-quality
 import { FaHeart, FaPaw, FaLeaf } from "react-icons/fa"; // New icons for inline text
 
 // Using Google Fonts example (you'd link these in public/index.html or via @import in CSS)
@@ -139,7 +139,7 @@ const HeroSection = () => {
             <img
               src={homehero}
               alt="An individual gently petting a rescued dog, symbolizing compassion and care at Prani Seva Ashram"
-              className="w-full h-auto object-cover rounded-2xl border border-gray-50"
+              className="rounded-full object-cover w-full h-full shadow-lg border-4 border-white ring-2 ring-amber-300 transform group-hover:scale-105 transition-transform duration-300 ease-in-out"
               loading="lazy"
               width={500}
               height={500}

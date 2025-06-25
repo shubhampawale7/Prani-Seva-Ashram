@@ -13,7 +13,7 @@ const MissionValues = () => {
       icon: (
         <FiUserCheck size={32} aria-hidden="true" className="text-rose-500" />
       ),
-      title: "Hands-on Rescue",
+      title: "Hands-on Rescued and Home",
       desc: "We go to the streets, treat the injured, and provide shelter.",
     },
     {

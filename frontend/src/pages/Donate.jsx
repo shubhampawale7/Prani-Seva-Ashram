@@ -197,101 +197,166 @@ const Donate = () => {
 
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 20;
-    const lineSpacing = 10;
-    const startY = 80;
+    const lineSpacing = 10; // Increased line spacing for better readability
+    let y = margin; // Start content from the top margin
 
+    // Define Amber Colors (using hex for precision, converted to RGB)
+    const amber50 = [255, 248, 225]; // #FFF8E1 (Amber 50)
+    const amber500 = [255, 152, 0]; // #FF9800 (Amber 500)
+    const greyText = [70, 70, 70]; // Darker grey for content text
+    const lightGreyText = [120, 120, 120]; // Lighter grey for subtle text
+
+    // Load Logo
     const logo = new Image();
-    logo.src = "/logo2.png.png"; // Make sure this is in your public folder
+    logo.src = "/logo2.png.png";
 
     logo.onload = () => {
-      // Header & Logo
-      doc.addImage(logo, "PNG", pageWidth / 2 - 25, 10, 50, 50);
+      // Header Section
+      // Amber 50 background strip
+      doc.setFillColor(amber50[0], amber50[1], amber50[2]);
+      doc.rect(0, 0, pageWidth, 50, "F"); // Full width header background
+
+      // Logo and Organization Name
+      doc.addImage(logo, "PNG", margin, 10, 30, 30); // Positioned to the left
       doc.setFontSize(18);
-      doc.setTextColor(34, 139, 34);
-      doc.text("Prani Seva Ashram", pageWidth / 2, 70, { align: "center" });
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(amber500[0], amber500[1], amber500[2]); // Amber 500 for organization name
+      doc.text("Prani Seva Ashram", margin + 40, 30); // Aligned with logo
 
-      // Title
+      // Title Section
+      y = 70; // Adjust start Y after header
+      doc.setFontSize(24);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(50, 50, 50); // Dark grey for the main title
+      doc.text("Donation Receipt", pageWidth / 2, y, { align: "center" });
+      y += lineSpacing * 1.5;
+
+      // Decorative line below title
+      doc.setDrawColor(amber500[0], amber500[1], amber500[2]);
+      doc.setLineWidth(1);
+      doc.line(margin, y, pageWidth - margin, y);
+      y += lineSpacing * 1.5;
+
+      // Donor Information Section
       doc.setFontSize(14);
-      doc.setTextColor(0, 0, 0);
-      doc.text("Donation Receipt", pageWidth / 2, 80, { align: "center" });
-
-      // Donor Info Section
-      let y = startY;
-      doc.setFontSize(12);
-      doc.setTextColor(0, 0, 0);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(amber500[0], amber500[1], amber500[2]); // Amber 500 for section titles
       doc.text("Donor Information:", margin, y);
       y += lineSpacing;
+
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(greyText[0], greyText[1], greyText[2]);
       doc.text(`Name: ${paymentDetails.name}`, margin + 10, y);
       y += lineSpacing;
       doc.text(`Email: ${paymentDetails.email}`, margin + 10, y);
-      y += lineSpacing;
+      y += lineSpacing * 2;
 
-      // Donation Info Section
-      y += lineSpacing;
+      // Donation Details Section
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(amber500[0], amber500[1], amber500[2]);
       doc.text("Donation Details:", margin, y);
       y += lineSpacing;
-      doc.text(`Amount Donated: ₹${paymentDetails.amount}`, margin + 10, y);
+
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(greyText[0], greyText[1], greyText[2]);
+      doc.text(
+        `Amount Donated: Rs. ${paymentDetails.amount}/-`,
+        margin + 10,
+        y
+      );
       y += lineSpacing;
       doc.text(`Purpose: ${paymentDetails.purpose}`, margin + 10, y);
       y += lineSpacing;
       doc.text(`Date: ${paymentDetails.date}`, margin + 10, y);
       y += lineSpacing;
       doc.text(`Payment ID: ${paymentDetails.paymentId}`, margin + 10, y);
-
-      // Organization Info Section
       y += lineSpacing * 2;
+
+      // Organization Information Section
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(amber500[0], amber500[1], amber500[2]);
       doc.text("Organization Details:", margin, y);
       y += lineSpacing;
+
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(greyText[0], greyText[1], greyText[2]);
       doc.text("Prani Seva Ashram", margin + 10, y);
       y += lineSpacing;
       doc.text("KP Housing Society, East Street Camp,", margin + 10, y);
       y += lineSpacing;
       doc.text("Pune - 411001, Maharashtra, India", margin + 10, y);
       y += lineSpacing;
-      doc.text("Email: donate@praniseva.org", margin + 10, y);
+      doc.text("Email: donate@pranisevaashram.com", margin + 10, y);
       y += lineSpacing;
-      doc.text("Website: www.praniseva.org", margin + 10, y);
+      doc.text("Website: www.pranisevaashram.com", margin + 10, y);
       y += lineSpacing;
-      doc.text("Phone: +91-XXXXXXXXXX", margin + 10, y);
-
-      // Thank You Message
+      doc.text("Phone: +91-9011523456", margin + 10, y);
       y += lineSpacing * 2;
-      doc.setTextColor(34, 139, 34);
+
+      // Thank You Message & Quote
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(amber500[0], amber500[1], amber500[2]);
+      doc.text("Thank you for your generous support!", pageWidth / 2, y, {
+        align: "center",
+      });
+      y += lineSpacing * 1.5;
+
       doc.setFontSize(11);
-      doc.text("Thank you for your generous support!", margin, y);
-      y += lineSpacing;
-      doc.setFontSize(10);
-      doc.setTextColor(100);
+      doc.setFont("helvetica", "italic");
+      doc.setTextColor(lightGreyText[0], lightGreyText[1], lightGreyText[2]);
       doc.text(
         `"Your kindness feeds more than just stomachs—it feeds hope."`,
+        pageWidth / 2,
+        y,
+        { align: "center" }
+      );
+      // Reduced space after quote to bring footer up
+      y += lineSpacing;
+
+      // ---
+      // Footer
+      // The footer now occupies a smaller height for a single line
+      const footerHeight = 25; // Adjusted height for the footer strip
+      doc.setFillColor(amber50[0], amber50[1], amber50[2]);
+      doc.rect(0, pageHeight - footerHeight, pageWidth, footerHeight, "F");
+
+      // Decorative line above footer - Adjusted position to be just above the new footer height
+      doc.setDrawColor(amber500[0], amber500[1], amber500[2]);
+      doc.line(
         margin,
-        y
+        pageHeight - footerHeight - 5,
+        pageWidth - margin,
+        pageHeight - footerHeight - 5
       );
 
-      // Footer
-      doc.setDrawColor(200);
-      doc.line(margin, 270, pageWidth - margin, 270);
       doc.setFontSize(9);
-      doc.setTextColor(150);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(lightGreyText[0], lightGreyText[1], lightGreyText[2]);
       doc.text(
-        "© Prani Seva Ashram | www.praniseva.org | donate@praniseva.org",
+        "© Prani Seva Ashram | www.praniseva.com | donate@praniseva.org",
         pageWidth / 2,
-        278,
+        pageHeight - footerHeight / 2 + 2, // Vertically center text in new footer height
         { align: "center" }
       );
 
-      doc.save("Donation_Receipt.pdf");
-      toast.success("Receipt downloaded!"); // Confirmation toast
+      doc.save("DonationReceipt.pdf");
+      toast.success("Receipt downloaded successfully!");
     };
   };
-
   // NEW FUNCTION: To close the download modal and reset countdown
   const handleCloseDownloadModal = () => {
     setShowDownload(false);
     setCountdown(30); // Reset countdown for next time
     // Optional: Navigate away or do something else after modal closes
-    // navigate('/');
+    navigate("/");
   };
 
   return (
@@ -624,9 +689,10 @@ const Donate = () => {
                 Confirm Your Donation 💚
               </h2>
               <p className="mt-4 text-lg">
-                You're about to donate **₹{form.amount}** to **Prani Seva
-                Ashram** for **{form.purpose}**. Click "Proceed with Payment" to
-                confirm.
+                You're about to donate <strong>₹{form.amount}/- </strong> to
+                <strong> Prani Seva Ashram</strong> for{" "}
+                <strong>{form.purpose}</strong> . Click "Proceed with Payment"
+                to confirm.
               </p>
               <div className="flex justify-center gap-4 mt-6">
                 <button

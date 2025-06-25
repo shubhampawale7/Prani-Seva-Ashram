@@ -223,14 +223,14 @@ const OurWorkPage = () => {
 
           <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {[
-              {
-                title: "Animal Rescue & Emergency Intervention",
-                text: "Swift response for injured, sick, or abandoned animals, ensuring immediate medical aid and safe relocation to our shelter.",
-                icon: Heart,
-                bgColor: "bg-amber-50",
-                borderColor: "border-amber-600",
-                iconColor: "text-amber-600",
-              },
+              // {
+              //   title: "Animal Rescue & Emergency Intervention",
+              //   text: "Swift response for injured, sick, or abandoned animals, ensuring immediate medical aid and safe relocation to our shelter.",
+              //   icon: Heart,
+              //   bgColor: "bg-amber-50",
+              //   borderColor: "border-amber-600",
+              //   iconColor: "text-amber-600",
+              // },
               {
                 title: "Animal Shelter & Long-term Rehabilitation",
                 text: "A secure, nurturing home for over 60 rescued animals, where they receive continuous nutrition, essential medical treatment, and emotional care.",
@@ -239,14 +239,14 @@ const OurWorkPage = () => {
                 borderColor: "border-amber-400",
                 iconColor: "text-amber-400",
               },
-              {
-                title: "Comprehensive Veterinary Support",
-                text: "Access to on-call veterinary services, tailored post-recovery rehabilitation, and dedicated lifelong care for rescued animals with special needs.",
-                icon: Bone,
-                bgColor: "bg-amber-100",
-                borderColor: "border-amber-700",
-                iconColor: "text-amber-700",
-              },
+              // {
+              //   title: "Comprehensive Veterinary Support",
+              //   text: "Access to on-call veterinary services, tailored post-recovery rehabilitation, and dedicated lifelong care for rescued animals with special needs.",
+              //   icon: Bone,
+              //   bgColor: "bg-amber-100",
+              //   borderColor: "border-amber-700",
+              //   iconColor: "text-amber-700",
+              // },
               {
                 title: "Animal Adoption & Foster Programs",
                 text: "Dedicated initiatives helping rescued animals find loving, permanent homes through responsible and thorough adoption processes.",

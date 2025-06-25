@@ -13,6 +13,8 @@ import {
   FaTwitter,
   FaLinkedin,
   FaPaw,
+  FaYoutube,
+  FaWhatsapp,
 } from "react-icons/fa"; // Keep FaPaw for consistency
 import { X } from "lucide-react"; // Import X icon for modal close button
 
@@ -337,43 +339,43 @@ const Contact = () => {
 
           <motion.div
             variants={itemVariants}
-            className="flex justify-center lg:justify-start gap-6 mt-10 text-3xl text-amber-700"
+            className="flex justify-center lg:justify-start gap-6 mt-10 text-3xl ml-5"
           >
             <a
-              href="#"
+              href="https://www.facebook.com/profile.php?id=61576780949517"
               aria-label="Facebook"
-              className="hover:text-amber-900 transition-colors duration-200"
+              className="hover:text-blue-700 text-blue-600 transition-colors duration-200"
               target="_blank"
               rel="noopener noreferrer"
             >
               <FaFacebookF />
             </a>
             <a
-              href="#"
+              href="https://www.instagram.com/pranisevaashram/"
               aria-label="Instagram"
-              className="hover:text-amber-900 transition-colors duration-200"
+              className="hover:text-pink-700 text-pink-600 transition-colors duration-200"
               target="_blank"
               rel="noopener noreferrer"
             >
               <FaInstagram />
             </a>
             <a
-              href="#"
-              aria-label="Twitter"
-              className="hover:text-amber-900 transition-colors duration-200"
+              href="https://www.youtube.com/@PraniSevaAshram"
+              aria-label="Youtube"
+              className="hover:text-red-700 text-red-600 transition-colors duration-200"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <FaTwitter />
+              <FaYoutube />
             </a>
             <a
-              href="#"
-              aria-label="LinkedIn"
-              className="hover:text-amber-900 transition-colors duration-200"
+              href="https://wa.me/919225633029"
+              aria-label="WhatsApp"
+              className="hover:text-green-700 text-green-400 transition-colors duration-200"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <FaLinkedin />
+              <FaWhatsapp />
             </a>
           </motion.div>
         </motion.div>

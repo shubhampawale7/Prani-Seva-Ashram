@@ -4,23 +4,32 @@ import axios from "axios";
 import { toast } from "sonner";
 import Masonry from "react-masonry-css";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Download, Share2, X } from "lucide-react"; // Import X for close icon
+import {
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  Share2,
+  ZoomIn,
+  ZoomOut,
+  X,
+} from "lucide-react"; // Import new icons
 
 const GalleryPage = () => {
+  // State Management
   const [loading, setLoading] = useState(true);
   const [images, setImages] = useState([]);
   const [activeIndex, setActiveIndex] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const imagesPerPage = 9; // Number of images per page
+  const imagesPerPage = 100; // Increased images per page for a richer initial view
 
-  // Modal state for zoom/pan
+  // Modal State for zoom/pan
   const [zoom, setZoom] = useState(1);
   const [isZoomed, setIsZoomed] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const imgRef = useRef(null); // Ref for the image in the modal
   const touchStart = useRef(null); // For swipe gestures
 
-  // Fetch images from API
+  // --- Data Fetching ---
   const fetchImages = useCallback(async () => {
     setLoading(true);
     try {
@@ -28,20 +37,20 @@ const GalleryPage = () => {
         withCredentials: true,
       });
       setImages(res.data || []);
-      // toast.success("Gallery loaded successfully!"); // Added success toast
+      toast.success("Gallery loaded successfully!");
     } catch (err) {
       toast.error("Failed to load images. Please try again.");
       console.error("Gallery fetch error:", err);
     } finally {
       setLoading(false);
     }
-  }, []); // useCallback to memoize function
+  }, []); // Dependency array is empty as fetchImages doesn't depend on any props/state
 
   useEffect(() => {
     fetchImages();
   }, [fetchImages]);
 
-  // Pagination Logic
+  // --- Pagination Logic ---
   const indexOfLastImage = currentPage * imagesPerPage;
   const indexOfFirstImage = indexOfLastImage - imagesPerPage;
   const currentImages = images.slice(indexOfFirstImage, indexOfLastImage);
@@ -49,12 +58,18 @@ const GalleryPage = () => {
   const selectedImage =
     activeIndex !== null ? currentImages[activeIndex] : null;
 
-  const paginate = (pageNumber) => {
-    setCurrentPage(pageNumber);
-    window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top on page change
-  };
+  const paginate = useCallback(
+    (pageNumber) => {
+      if (pageNumber > 0 && pageNumber <= totalPages) {
+        setCurrentPage(pageNumber);
+        setActiveIndex(null); // Reset activeIndex when page changes
+        window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top on page change
+      }
+    },
+    [totalPages]
+  );
 
-  // Modal handlers
+  // --- Modal Handlers ---
   const openModal = useCallback((index) => {
     setActiveIndex(index);
     setZoom(1);
@@ -75,7 +90,8 @@ const GalleryPage = () => {
     setActiveIndex((prev) =>
       prev === 0 ? currentImages.length - 1 : prev - 1
     );
-    setZoom(1); // Reset zoom on image change
+    // Reset zoom and position for the new image
+    setZoom(1);
     setIsZoomed(false);
     setPosition({ x: 0, y: 0 });
   }, [currentImages]);
@@ -84,7 +100,8 @@ const GalleryPage = () => {
     setActiveIndex((prev) =>
       prev === currentImages.length - 1 ? 0 : prev + 1
     );
-    setZoom(1); // Reset zoom on image change
+    // Reset zoom and position for the new image
+    setZoom(1);
     setIsZoomed(false);
     setPosition({ x: 0, y: 0 });
   }, [currentImages]);
@@ -122,7 +139,7 @@ const GalleryPage = () => {
     touchStart.current = null;
   };
 
-  // Download and Share functions
+  // --- Download and Share functions ---
   const handleDownload = (url, title = "image") => {
     const link = document.createElement("a");
     link.href = `http://localhost:5000${url}`;
@@ -130,7 +147,7 @@ const GalleryPage = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast.success("Image downloaded!");
+    toast.success("Image downloaded successfully!");
   };
 
   const handleShare = async (url, title = "image") => {
@@ -147,11 +164,12 @@ const GalleryPage = () => {
         toast.success("Image link copied to clipboard!");
       }
     } catch (err) {
+      console.error("Share error:", err);
       toast.error("Could not share image.");
     }
   };
 
-  // Zoom and Pan functions
+  // --- Zoom and Pan functions ---
   const toggleZoom = () => {
     if (isZoomed) {
       setZoom(1);
@@ -162,39 +180,47 @@ const GalleryPage = () => {
     setIsZoomed(!isZoomed);
   };
 
-  const handleMouseMove = (e) => {
-    if (!isZoomed || !imgRef.current) return;
+  const handleMouseMove = useCallback(
+    (e) => {
+      if (!isZoomed || !imgRef.current) return;
 
-    const { left, top, width, height } = imgRef.current.getBoundingClientRect();
-    const offsetX = e.clientX - left;
-    const offsetY = e.clientY - top;
+      const { left, top, width, height } =
+        imgRef.current.getBoundingClientRect();
+      const offsetX = e.clientX - left;
+      const offsetY = e.clientY - top;
 
-    // Calculate position relative to the image center for smoother pan
-    const newX = (offsetX / width - 0.5) * (width * (zoom - 1));
-    const newY = (offsetY / height - 0.5) * (height * (zoom - 1));
+      // Calculate position relative to the image center for smoother pan
+      const newX = (offsetX / width - 0.5) * (width * (zoom - 1));
+      const newY = (offsetY / height - 0.5) * (height * (zoom - 1));
 
-    setPosition({ x: -newX, y: -newY }); // Invert for natural pan direction
-  };
+      setPosition({ x: -newX, y: -newY }); // Invert for natural pan direction
+    },
+    [isZoomed, zoom]
+  );
 
-  const handleTouchMove = (e) => {
-    if (!isZoomed) return;
-    if (e.touches.length === 1) {
-      handleMouseMove({
-        clientX: e.touches[0].clientX,
-        clientY: e.touches[0].clientY,
-      });
-    }
-  };
+  const handleTouchMove = useCallback(
+    (e) => {
+      if (!isZoomed) return;
+      if (e.touches.length === 1) {
+        handleMouseMove({
+          clientX: e.touches[0].clientX,
+          clientY: e.touches[0].clientY,
+        });
+      }
+    },
+    [isZoomed, handleMouseMove]
+  );
 
-  // Masonry layout breakpoints
+  // --- Masonry Layout Breakpoints ---
   const breakpointColumnsObj = {
     default: 4,
+    1400: 3, // For larger screens
     1100: 3,
     700: 2,
     500: 1,
   };
 
-  // Framer Motion variants
+  // --- Framer Motion Variants ---
   const galleryItemVariants = {
     hidden: { opacity: 0, scale: 0.9, y: 20 },
     visible: {
@@ -202,6 +228,11 @@ const GalleryPage = () => {
       scale: 1,
       y: 0,
       transition: { duration: 0.5, ease: "easeOut" },
+    },
+    hover: {
+      scale: 1.05, // Slight scale up on hover
+      boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)", // More pronounced shadow
+      transition: { duration: 0.3 },
     },
   };
 
@@ -219,24 +250,9 @@ const GalleryPage = () => {
     },
   };
 
-  const imageVariants = {
-    enter: (direction) => ({
-      x: direction > 0 ? 500 : -500,
-      opacity: 0,
-    }),
-    center: {
-      x: 0,
-      opacity: 1,
-    },
-    exit: (direction) => ({
-      x: direction < 0 ? 500 : -500,
-      opacity: 0,
-    }),
-  };
-
   return (
     <div className="max-w-7xl mx-auto px-4 py-16 font-sans">
-      {/* SEO Tags */}
+      {/* --- SEO Tags --- */}
       <Helmet>
         <title>Gallery | Prani Seva Ashram</title>
         <meta
@@ -257,7 +273,6 @@ const GalleryPage = () => {
         />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="http://localhost:3000/gallery" />
-        {/* Replace with a representative image from your gallery or a default cover */}
         <meta
           property="og:image"
           content="http://localhost:5000/uploads/gallery_cover.jpg"
@@ -276,35 +291,36 @@ const GalleryPage = () => {
         />
       </Helmet>
 
-      {/* Hero Section / Title */}
+      {/* --- Hero Section / Title --- */}
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7 }}
         className="text-center mb-16"
       >
-        <h1 className="text-5xl md:text-6xl font-extrabold text-amber-800 drop-shadow-lg mb-4">
+        <h1 className="text-5xl md:text-6xl font-extrabold text-amber-800 drop-shadow-lg mb-4 leading-tight">
           Our Cherished Moments
         </h1>
-        <p className="text-xl md:text-2xl font-medium text-gray-700 italic">
+        <p className="text-xl md:text-2xl font-medium text-gray-700 italic mb-6">
           "Every life deserves a second chance 🐾"
         </p>
-        <p className="max-w-3xl mx-auto text-gray-600 mt-4 text-lg">
+        <p className="max-w-3xl mx-auto text-gray-600 text-lg leading-relaxed">
           Dive into our visual diary, a collection of heartwarming moments
           showcasing the lives we touch, the rescues we perform, and the joy we
           share with our beloved animals.
         </p>
       </motion.div>
 
+      {/* --- Gallery Content --- */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-20">
+        <div className="flex flex-col items-center justify-center py-20 bg-gradient-to-br from-amber-50 to-orange-100 rounded-lg shadow-inner">
           <div className="w-20 h-20 border-4 border-dashed border-amber-500 rounded-full animate-spin"></div>
           <p className="mt-6 text-xl text-gray-600 font-semibold">
             Fetching heartwarming stories...
           </p>
         </div>
       ) : images.length === 0 ? (
-        <p className="text-center text-gray-500 text-xl py-20">
+        <p className="text-center text-gray-500 text-xl py-20 bg-gray-50 rounded-lg shadow-sm">
           No images available in the gallery yet. Check back soon!
         </p>
       ) : (
@@ -327,9 +343,17 @@ const GalleryPage = () => {
                 <motion.div
                   key={img._id}
                   variants={galleryItemVariants}
-                  whileHover="hover" // This variant is defined directly on the element via Tailwind group
-                  className="relative overflow-hidden rounded-xl shadow-lg cursor-pointer group mb-6"
+                  whileHover="hover"
+                  className="relative overflow-hidden rounded-xl shadow-lg cursor-pointer group mb-6 bg-white transform transition-transform duration-300" // Added background and transform
                   onClick={() => openModal(index)}
+                  aria-label={`Open image: ${img.title || "Gallery Image"}`}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      openModal(index);
+                    }
+                  }}
                 >
                   <img
                     src={`http://localhost:5000${img.url}`}
@@ -337,7 +361,7 @@ const GalleryPage = () => {
                     className="w-full h-auto object-cover transition-transform duration-500 ease-in-out group-hover:scale-110 group-hover:brightness-90"
                     loading="lazy"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
                     {img.title && (
                       <p className="text-white text-lg font-semibold truncate w-full">
                         {img.title}
@@ -349,7 +373,7 @@ const GalleryPage = () => {
             </Masonry>
           </motion.div>
 
-          {/* Pagination */}
+          {/* --- Pagination --- */}
           {totalPages > 1 && (
             <div className="flex justify-center items-center mt-16 gap-4">
               <button
@@ -360,7 +384,7 @@ const GalleryPage = () => {
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
-              <span className="px-5 py-2 text-gray-700 font-semibold text-lg bg-amber-100 rounded-full">
+              <span className="px-5 py-2 text-gray-700 font-semibold text-lg bg-amber-100 rounded-full shadow-inner">
                 {currentPage} / {totalPages}
               </span>
               <button
@@ -376,7 +400,7 @@ const GalleryPage = () => {
         </>
       )}
 
-      {/* Fullscreen Modal */}
+      {/* --- Fullscreen Modal --- */}
       <AnimatePresence>
         {selectedImage && (
           <motion.div
@@ -388,11 +412,16 @@ const GalleryPage = () => {
             onClick={handleCloseModal} // Close modal on overlay click
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Image detail for ${
+              selectedImage.title || "gallery image"
+            }`}
           >
             {/* Close Button */}
             <button
               onClick={handleCloseModal}
-              className="absolute top-4 right-4 md:top-8 md:right-8 text-white bg-black/50 hover:bg-black/70 rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold z-[101] transition-colors shadow-lg"
+              className="absolute top-4 right-4 md:top-8 md:right-8 text-white bg-black/50 hover:bg-black/70 rounded-full w-10 h-10 flex items-center justify-center text-xl font-bold z-[101] transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
               aria-label="Close image modal"
             >
               <X className="w-6 h-6" />
@@ -404,7 +433,7 @@ const GalleryPage = () => {
                 e.stopPropagation();
                 showPrevImage();
               }}
-              className="absolute left-4 md:left-8 top-1/2 transform -translate-y-1/2 z-[101] text-white bg-black/50 hover:bg-black/70 p-3 rounded-full transition-colors shadow-lg"
+              className="absolute left-4 md:left-8 top-1/2 transform -translate-y-1/2 z-[101] text-white bg-black/50 hover:bg-black/70 p-3 rounded-full transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
               aria-label="Previous image"
             >
               <ChevronLeft className="w-7 h-7" />
@@ -414,7 +443,7 @@ const GalleryPage = () => {
                 e.stopPropagation();
                 showNextImage();
               }}
-              className="absolute right-4 md:right-8 top-1/2 transform -translate-y-1/2 z-[101] text-white bg-black/50 hover:bg-black/70 p-3 rounded-full transition-colors shadow-lg"
+              className="absolute right-4 md:right-8 top-1/2 transform -translate-y-1/2 z-[101] text-white bg-black/50 hover:bg-black/70 p-3 rounded-full transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
               aria-label="Next image"
             >
               <ChevronRight className="w-7 h-7" />
@@ -424,6 +453,8 @@ const GalleryPage = () => {
             <motion.div
               className="relative w-full h-full max-w-5xl max-h-[90vh] flex items-center justify-center"
               onClick={(e) => e.stopPropagation()} // Prevent modal close when clicking image itself
+              role="img"
+              aria-label={selectedImage.title || "Zoomable image"}
             >
               <AnimatePresence initial={false} mode="wait">
                 <motion.img
@@ -444,6 +475,7 @@ const GalleryPage = () => {
                   animate={{ opacity: 1, scale: 1 }} // Animate to full visibility
                   exit={{ opacity: 0, scale: 0.9 }} // Animate out
                   transition={{ duration: 0.2, ease: "easeOut" }} // Quick transition for image swap
+                  draggable="false" // Prevent native drag
                 />
               </AnimatePresence>
             </motion.div>
@@ -456,7 +488,7 @@ const GalleryPage = () => {
                     e.stopPropagation();
                     handleDownload(selectedImage.url, selectedImage.title);
                   }}
-                  className="bg-white/90 hover:bg-white text-gray-800 rounded-full p-3 shadow-lg transition-colors flex items-center gap-2 text-sm md:text-base font-semibold"
+                  className="bg-white/90 hover:bg-white text-gray-800 rounded-full p-3 shadow-lg transition-colors flex items-center gap-2 text-sm md:text-base font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500"
                   aria-label="Download image"
                 >
                   <Download className="w-5 h-5" /> Download
@@ -466,7 +498,7 @@ const GalleryPage = () => {
                     e.stopPropagation();
                     handleShare(selectedImage.url, selectedImage.title);
                   }}
-                  className="bg-white/90 hover:bg-white text-gray-800 rounded-full p-3 shadow-lg transition-colors flex items-center gap-2 text-sm md:text-base font-semibold"
+                  className="bg-white/90 hover:bg-white text-gray-800 rounded-full p-3 shadow-lg transition-colors flex items-center gap-2 text-sm md:text-base font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500"
                   aria-label="Share image"
                 >
                   <Share2 className="w-5 h-5" /> Share
@@ -476,9 +508,14 @@ const GalleryPage = () => {
                     e.stopPropagation();
                     toggleZoom();
                   }}
-                  className="bg-white/90 hover:bg-white text-gray-800 rounded-full p-3 shadow-lg transition-colors flex items-center gap-2 text-sm md:text-base font-semibold"
+                  className="bg-white/90 hover:bg-white text-gray-800 rounded-full p-3 shadow-lg transition-colors flex items-center gap-2 text-sm md:text-base font-semibold focus:outline-none focus:ring-2 focus:ring-amber-500"
                   aria-label={isZoomed ? "Zoom out" : "Zoom in"}
                 >
+                  {isZoomed ? (
+                    <ZoomOut className="w-5 h-5" />
+                  ) : (
+                    <ZoomIn className="w-5 h-5" />
+                  )}{" "}
                   {isZoomed ? "Zoom Out" : "Zoom In"}
                 </button>
               </div>
@@ -495,7 +532,7 @@ const GalleryPage = () => {
               </div>
 
               {/* Thumbnail Navigation */}
-              <div className="flex overflow-x-auto gap-2 mt-4 px-2 pb-1 max-w-full scrollbar-thin scrollbar-thumb-amber-500 scrollbar-track-transparent scroll-snap-x mandatory rounded-lg">
+              <div className="flex overflow-x-auto gap-3 mt-4 px-2 pb-1 max-w-full scrollbar-thin scrollbar-thumb-amber-500 scrollbar-track-transparent scroll-snap-x mandatory rounded-lg">
                 {currentImages.map((img, idx) => (
                   <div
                     key={img._id}
@@ -503,16 +540,28 @@ const GalleryPage = () => {
                       e.stopPropagation();
                       setActiveIndex(idx);
                     }}
-                    className={`scroll-snap-start w-20 h-20 min-w-[5rem] rounded-md overflow-hidden border-2 cursor-pointer transition-all duration-200 shadow-md ${
+                    className={`scroll-snap-start w-24 h-24 min-w-[6rem] rounded-md overflow-hidden border-2 cursor-pointer transition-all duration-200 shadow-md flex-shrink-0 ${
+                      // Added flex-shrink-0
                       img._id === selectedImage._id
-                        ? "border-amber-400 scale-105" // Highlight active thumbnail
+                        ? "border-amber-400 scale-105 ring-2 ring-amber-400" // Highlight active thumbnail
                         : "border-transparent hover:border-amber-200"
                     }`}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Select image ${idx + 1}: ${
+                      img.title || "thumbnail"
+                    }`}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        setActiveIndex(idx);
+                      }
+                    }}
                   >
                     <img
                       src={`http://localhost:5000${img.url}`}
-                      alt={img.title || "Thumbnail"}
+                      alt={img.title || `Thumbnail ${idx + 1}`}
                       className="w-full h-full object-cover"
+                      loading="lazy"
                     />
                   </div>
                 ))}

@@ -82,9 +82,11 @@ const AdminLayout = () => {
           {/* Brand/Dashboard Link */}
           <NavLink
             to="/admin"
+            // Add the 'end' prop here
+            end // This is the key change!
             className="flex items-center gap-3 text-2xl font-extrabold text-amber-400 tracking-wide"
           >
-            <FaHome className="text-3xl" />
+            <FaHome className="stext-3xl" />
             <span className="hidden sm:inline">Prani Seva Admin</span>
           </NavLink>
 
@@ -97,8 +99,14 @@ const AdminLayout = () => {
               <NavLink
                 key={link.to}
                 to={link.to}
+                // Add the 'end' prop specifically for the dashboard link if needed,
+                // but it's generally good practice for exact matches.
+                // For other links like /admin/inquiries, you usually want it active
+                // for /admin/inquiries/123 etc., so 'end' might not be desired there.
+                // Given your navLinks structure, only '/admin' needs 'end'.
+                {...(link.to === "/admin" && { end: true })} // Conditionally apply 'end'
                 className={({ isActive }) =>
-                  `flex items-center gap-2 px-3 py-2 rounded-md transition-all duration-200 text-lg font-medium 
+                  `flex items-center gap-2 px-3 py-2 rounded-md transition-all duration-200 text-lg font-medium
                   ${
                     isActive
                       ? "bg-amber-600 text-white shadow-md"
@@ -203,8 +211,10 @@ const AdminLayout = () => {
                     >
                       <NavLink
                         to={link.to}
+                        // Add the 'end' prop here for the dashboard link
+                        {...(link.to === "/admin" && { end: true })} // Conditionally apply 'end'
                         className={({ isActive }) =>
-                          `flex items-center gap-4 px-4 py-3 rounded-lg text-lg font-medium transition-all duration-200 
+                          `flex items-center gap-4 px-4 py-3 rounded-lg text-lg font-medium transition-all duration-200
                           ${
                             isActive
                               ? "bg-amber-600 text-white shadow-md"

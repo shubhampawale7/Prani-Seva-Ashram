@@ -94,7 +94,7 @@ const OurVisionSection = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0   bg-opacity-70 flex items-center justify-center z-50 p-4"
             onClick={() => setIsModalOpen(false)} // Click outside to close
           >
             <motion.div
